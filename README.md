@@ -24,7 +24,3 @@ Nombre de questions : 20
 ## Developpeur - auteur 
 
 Hamdy Abou El Anein
-
-## Homepage
-
-http://www.daylightlinux.ch 
