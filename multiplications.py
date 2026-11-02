@@ -1,84 +1,108 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+# Developer: Hamdy Abou El Anein
+# Contact: info@daylightlinux.ch
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Interactive multiplication practice with a Tkinter desktop interface."""
+from __future__ import annotations
 
-# Developer : Hamdy Abou El Anein
-# hamdy.aea@protonmail.com
-
-import random
-from easygui import *
-import sys
+import argparse
+import secrets
+import tkinter as tk
+from tkinter import messagebox
 
 
-def start():
-    count = 1
-    bonne_rep = 0
-    max = 20
+def question() -> tuple[int, int]:
+    return secrets.randbelow(10) + 2, secrets.randbelow(10) + 2
 
-    while count <= max:
-        number_a = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-        number_b = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-        random.shuffle(number_a)
-        random.shuffle(number_b)
-        print(str(count) + str(")"))
-        print(str(number_a[0]) + str(" X ") + str(number_b[0]) + str(" ="))
-        answer = int(input())
-        good_ans = int((number_a[0]) * (number_b[0]))
-        if good_ans == answer:
-            print("Bonne réponse ! Bravo !")
-            count = count + 1
-            bonne_rep = bonne_rep + 1
+def grade(correct: int, total: int) -> float:
+    if total <= 0 or not 0 <= correct <= total:
+        raise ValueError("Invalid score")
+    return round(1 + 5 * correct / total, 2)
+
+
+class MultiplicationApp(tk.Tk):
+    QUESTIONS = 20
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.title("Multiplication Trainer · Hamdy Abou El Anein")
+        self.geometry("500x410")
+        self.minsize(410, 350)
+        self.configure(bg="#101827")
+        self.correct = 0
+        self.index = 0
+        self.current = (2, 2)
+        self.progress = tk.StringVar()
+        self.prompt = tk.StringVar()
+        self.feedback = tk.StringVar()
+        self.answer = tk.StringVar()
+        panel = tk.Frame(self, bg="#101827", padx=30, pady=24)
+        panel.pack(expand=True, fill="both")
+        tk.Label(panel, text="MULTIPLICATION TRAINER", font=("DejaVu Sans", 13, "bold"),
+                 bg="#101827", fg="#8bd6c1").pack(pady=(0, 20))
+        tk.Label(panel, textvariable=self.progress, font=("DejaVu Sans", 11),
+                 bg="#101827", fg="#c7d4e4").pack()
+        tk.Label(panel, textvariable=self.prompt, font=("DejaVu Sans", 34, "bold"),
+                 bg="#101827", fg="#f2c879").pack(pady=(20, 12))
+        self.entry = tk.Entry(panel, textvariable=self.answer, font=("DejaVu Sans", 20),
+                              justify="center", width=10)
+        self.entry.pack()
+        tk.Label(panel, textvariable=self.feedback, font=("DejaVu Sans", 11),
+                 bg="#101827", fg="#c7d4e4", wraplength=400).pack(pady=12)
+        self.submit = tk.Button(panel, text="Check answer", command=self.check,
+                                bg="#7ddcc0", fg="#10211c", font=("DejaVu Sans", 11, "bold"),
+                                relief="flat", padx=18, pady=9)
+        self.submit.pack()
+        tk.Button(panel, text="Start again", command=self.reset,
+                  bg="#293a50", fg="#ffffff", relief="flat", padx=12, pady=7).pack(pady=12)
+        self.bind("<Return>", lambda _event: self.check())
+        self.reset()
+
+    def reset(self) -> None:
+        self.index = self.correct = 0
+        self.submit.config(state="normal")
+        self.feedback.set("")
+        self.next_question()
+
+    def next_question(self) -> None:
+        self.current = question()
+        self.progress.set(f"Question {self.index + 1} / {self.QUESTIONS} · {self.correct} correct")
+        self.prompt.set(f"{self.current[0]} × {self.current[1]} = ?")
+        self.answer.set("")
+        self.entry.focus_set()
+
+    def check(self) -> None:
+        if self.index >= self.QUESTIONS:
+            return
+        try:
+            response = int(self.answer.get().strip())
+        except ValueError:
+            self.feedback.set("Please enter a whole number.")
+            return
+        expected = self.current[0] * self.current[1]
+        self.correct += response == expected
+        self.index += 1
+        self.feedback.set("Correct!" if response == expected else f"Answer: {expected}")
+        if self.index == self.QUESTIONS:
+            self.submit.config(state="disabled")
+            self.progress.set(f"Completed · {self.correct}/{self.QUESTIONS} correct")
+            self.prompt.set(f"Grade: {grade(self.correct, self.QUESTIONS):.2f} / 6")
+            self.answer.set("")
         else:
-            print("Mauvaise réponse !")
-            print(("La réponse était :") + str(good_ans))
-            count = count + 1
-            bonne_rep = bonne_rep - 1
-            if bonne_rep <= 0:
-                bonne_rep = 0
-        if count > max:
-            break
-    total = ((bonne_rep) * 6) / 20
-    if total == 0:
-        total = 1
-        image = "./Pictures/sad.jpg"
-        msg = "Tu n'as pas réussi\n\nNote finale : " + str(total)
-        choices = ["Replay", "Quit"]
-        reply = buttonbox(msg, image=image, choices=choices)
-        if reply == "Replay":
-            start()
-        else:
-            sys.exit(0)
-        reply = buttonbox(msg, image=image, choices=choices)
-    elif total <= 3:
-        total = total + 1
-        image = "./Pictures/sad.jpg"
-        msg = "Tu n'as pas réussi\n\nNote finale : " + str(total)
-        choices = ["Replay", "Quit"]
-        reply = buttonbox(msg, image=image, choices=choices)
-        if reply == "Replay":
-            start()
-        else:
-            sys.exit(0)
-    elif total == 6:
-        image = "./Pictures/happy.jpeg"
-        msg = "Tu as réussi\n\nNote finale : " + str(total)
-        choices = ["Replay", "Quit"]
-        reply = buttonbox(msg, image=image, choices=choices)
-        if reply == "Replay":
-            start()
-        else:
-            sys.exit(0)
-    elif total > 4 and total < 6:
-        total = total + 1
-        if total > 6:
-            total = 6
-        image = "./Pictures/happy.jpeg"
-        msg = "Tu as réussi\n\nNote finale : " + str(total)
-        choices = ["Replay", "Quit"]
-        reply = buttonbox(msg, image=image, choices=choices)
-        if reply == "Replay":
-            start()
-        else:
-            sys.exit(0)
+            self.next_question()
 
 
-start()
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--grade", nargs=2, type=int, metavar=("CORRECT", "TOTAL"),
+                        help="Calculate the Swiss 1–6 grade in the terminal")
+    args = parser.parse_args()
+    if args.grade is not None:
+        print(grade(*args.grade))
+    else:
+        MultiplicationApp().mainloop()
+
+
+if __name__ == "__main__":
+    main()

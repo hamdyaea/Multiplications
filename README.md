@@ -1,26 +1,33 @@
-![Awesome](awesome.svg) ![Python](python.png)  
+# Multiplication Trainer
 
-# Multiplications
+A lightweight, modern Python 3 application for multiplication practice.
 
-![Screenshot](screenshot.png)
+**Developer:** Hamdy Abou El Anein
+**Contact:** info@daylightlinux.ch
+**License:** GNU GPL v3 (see LICENSE).
 
-## A quoi sert ce programme ?
+## Features
 
-C'est un petit programme qui permet de faire apprendre aux enfants les multiplications de 2 à 11.
+- Python 3 with clear, testable application logic.
+- No EasyGUI dependency.
+- Tkinter desktop interface using Python standard library.
+- Original version preserved in the old branch:
+  https://github.com/hamdyaea/Multiplications/tree/old
 
-Meilleure note : 6
+## Requirements
 
-Plus mauvaise note : 1
+Python 3.10+ and Tkinter for desktop applications.
 
-Nombre de questions : 20
+## Run
 
+    python3 multiplications.py
 
-## Télécharger la version .exe pour Windows :
+Terminal mode:
 
-[![Download Multiplications](https://img.shields.io/sourceforge/dm/multiplications.svg)](https://sourceforge.net/projects/multiplications/files/latest/download)
-[![Download Multiplications](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/multiplications/files/latest/download)
+    python3 multiplications.py --grade 15 20
 
+## Test
 
-## Developpeur - auteur 
+    python3 -m unittest discover -s tests -v
 
-Hamdy Abou El Anein
+Runs locally without a cloud service or account.
