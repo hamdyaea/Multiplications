@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import secrets
+from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox
 
@@ -27,7 +28,8 @@ class MultiplicationApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Multiplication Trainer · Hamdy Abou El Anein")
-        self.geometry("500x410")
+        self.happy = tk.PhotoImage(file=str(Path(__file__).resolve().parent / "Pictures/happy-ui.png"))
+        self.sad = tk.PhotoImage(file=str(Path(__file__).resolve().parent / "Pictures/sad-ui.png"))
         self.minsize(410, 350)
         self.configure(bg="#101827")
         self.correct = 0
@@ -48,6 +50,8 @@ class MultiplicationApp(tk.Tk):
         self.entry = tk.Entry(panel, textvariable=self.answer, font=("DejaVu Sans", 20),
                               justify="center", width=10)
         self.entry.pack()
+        self.picture = tk.Label(panel, bg="#101827")
+        self.picture.pack()
         tk.Label(panel, textvariable=self.feedback, font=("DejaVu Sans", 11),
                  bg="#101827", fg="#c7d4e4", wraplength=400).pack(pady=12)
         self.submit = tk.Button(panel, text="Check answer", command=self.check,
@@ -63,6 +67,7 @@ class MultiplicationApp(tk.Tk):
         self.index = self.correct = 0
         self.submit.config(state="normal")
         self.feedback.set("")
+        self.picture.configure(image="")
         self.next_question()
 
     def next_question(self) -> None:
@@ -81,6 +86,7 @@ class MultiplicationApp(tk.Tk):
             self.feedback.set("Please enter a whole number.")
             return
         expected = self.current[0] * self.current[1]
+        self.picture.configure(image=self.happy if response == expected else self.sad)
         self.correct += response == expected
         self.index += 1
         self.feedback.set("Correct!" if response == expected else f"Answer: {expected}")
